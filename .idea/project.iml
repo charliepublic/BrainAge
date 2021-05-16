@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/Beijing" />
+      <excludeFolder url="file://$MODULE_DIR$/N4_Bias" />
+      <excludeFolder url="file://$MODULE_DIR$/ROBEX" />
+      <excludeFolder url="file://$MODULE_DIR$/cambridge" />
+      <excludeFolder url="file://$MODULE_DIR$/IXI-T1" />
+      <excludeFolder url="file://$MODULE_DIR$/strip" />
+      <excludeFolder url="file://$MODULE_DIR$/regist" />
+      <excludeFolder url="file://$MODULE_DIR$/normalisation" />
+      <excludeFolder url="file://$MODULE_DIR$/segement" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.8 (base) (2)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
+  </component>
+</module>
