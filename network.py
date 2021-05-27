@@ -15,12 +15,13 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 
-print(keras.__version__)
-physical_devices = tf.config.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
-batch_size = 5
+# print(keras.__version__)
+# physical_devices = tf.config.list_physical_devices('CPU')
+# print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+batch_size = 2
 num_classes = 100
-epochs = 20
+epochs = 50
+rate = 10
 learning_rate = 0.01
 decay = 1e-6
 validation_split = 0.2
@@ -43,36 +44,50 @@ y = y.astype(int)
 train_files, test_files, y, test_labels = train_test_split(files_all, y, test_size=0.1)
 
 # construct model
-dimx, dimy, channels = 182, 218, 144
-inpx = Input(shape=(dimx, dimy, channels, 1), name='inpx')
-x = Conv3D(2, (3, 3, 3), activation='relu',
-           padding='same', name='conv1')(inpx)
-
-x = Conv3D(4, (3, 3, 3), activation='relu',
-           padding='same', name='conv2')(x)
-x = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                 padding='valid', name='pool2')(x)
-
-x = Conv3D(8, (3, 3, 3), activation='relu',
-           padding='same', name='conv3')(x)
-x = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                 padding='valid', name='pool3')(x)
-
-x = Conv3D(8, (3, 3, 3), activation='relu',
-           padding='same', name='conv4')(x)
-x = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                 padding='valid', name='pool4')(x)
-
-hx = Flatten()(x)
-score = Dense(100, activation='softmax', name='fc8')(hx)
-model = Model(inputs=inpx, outputs=score)
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.summary()
-
+try:
+    model = keras.models.load_model('my_model.h5')
+except:
+    dimx, dimy, channels = 182, 218, 144
+    model = keras.Sequential()
+    model.add(Input(shape=(dimx, dimy, channels, 1), name='inpx'))
+    model.add(Conv3D(2, (3, 3, 3), activation='relu',
+                     padding='same', name='conv1'))
+    model.add(Conv3D(4, (3, 3, 3), activation='relu',
+                     padding='same', name='conv2'))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           padding='valid', name='pool2'))
+    model.add(Conv3D(8, (3, 3, 3), activation='relu',
+                     padding='same', name='conv3'))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           padding='valid', name='pool3'))
+    model.add(Conv3D(8, (3, 3, 3), activation='relu',
+                     padding='same', name='conv4'))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           padding='valid', name='pool4'))
+    model.add(Conv3D(4, (3, 3, 3), activation='relu',
+                     padding='same', name='conv5'))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           padding='valid', name='pool5'))
+    model.add(Conv3D(2, (3, 3, 3), activation='relu',
+                     padding='same', name='conv6'))
+    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                           padding='valid', name='pool6'))
+    model.add(Flatten())
+    model.add(Dense(num_classes, activation='softmax', name='fc8'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.summary()
 print("model init")
 # train model
 train_x = []
-i = 0
+try:
+    file_path = 'data.txt'
+    with open(file_path, mode='r', encoding='utf-8') as file_obj:
+        i = int(file_obj.readline())
+
+except:
+    i = 0
+
+train_files = train_files[i:]
 for f in train_files:
     img = nib.load(os.path.join(REFIST_DIR, f))
     img_data = img.get_fdata()
@@ -80,20 +95,27 @@ for f in train_files:
     img_data = np.asarray(img_data)
     img_data = img_data[:, :, 0:144]
     train_x.append(img_data)
-    if i % 10 == 0:
-        times = int(i/10)
+
+    if i % rate == 0:
+        times = int(i / rate)
         x_train = np.asarray(train_x)
         x_train = np.expand_dims(x_train, 4)
-        y_train = y[(times-1)*10:times*10]
-        print(y_train)
-        print(len(y_train))
+        y_train = y[(times - 1) * rate:times * rate]
         y_train = to_categorical(y_train, num_classes)
 
         model.fit(x_train, y_train,
                   batch_size=batch_size,
-                  epochs=epochs, verbose=2, validation_split=validation_split)
+                  epochs=epochs, verbose=2)
+        print("______________________________________")
+        model.save('my_model.h5')
+        print(i)
+        file_path = 'data.txt'
+        with open(file_path, mode='w', encoding='utf-8') as file_obj:
+            file_obj.write(str(i))
         train_x = []
 
+print("______________________________________")
+print("training finished")
 # evaluate
 test_x, test_y = [], test_labels
 for i, f in enumerate(test_files):
@@ -101,6 +123,7 @@ for i, f in enumerate(test_files):
     img_data = img.get_fdata()
     img_data = np.asarray(img_data)
     img_data = img_data[:, :, 0:144]
+    print(img_data.shape())
     test_x.append(img_data)
 test_x = np.asarray(test_x)
 test_x = np.expand_dims(test_x, 4)
