@@ -20,7 +20,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 # print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 batch_size = 2
 num_classes = 100
-epochs = 50
+epochs = 40
 rate = 10
 learning_rate = 0.01
 decay = 1e-6
@@ -31,18 +31,87 @@ DATA_DIR = os.path.join(ROOT_DIR, 'normalisation')
 
 REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
 # DEMO_DIR = os.path.join(ROOT_DIR,'demographic')
+# data init
+try:
+    test_files = []
+    y = []
+    test_labels = []
+    train_files = []
+    file_path = 'train_X_data.txt'
+    with open(file_path, mode='r', encoding='utf-8') as file_obj:
+        while True:
+            content = file_obj.readline()
+            if not content:
+                break
+            content = content.replace("\n", "")
+            train_files.append(content)
 
-table_path = os.path.join(ROOT_DIR, "new_IXI.csv")
+    file_path = 'train_Y_data.txt'
+    with open(file_path, mode='r', encoding='utf-8') as file_obj:
+        while True:
+            content = file_obj.readline()
+            if not content:
+                break
+            content = content.replace("\n", "")
+            y.append(content)
 
-files_all = [each for each in os.listdir(REFIST_DIR) if not each.startswith('.')]
-df = pd.read_csv(table_path)
+    file_path = 'test_X_data.txt'
+    with open(file_path, mode='r', encoding='utf-8') as file_obj:
+        while True:
+            content = file_obj.readline()
+            if not content:
+                break
+            content = content.replace("\n", "")
+            test_files.append(content)
 
-df = df["AGE"]
-y = df.values
-y = y.astype(int)
+    file_path = 'test_Y_data.txt'
+    with open(file_path, mode='r', encoding='utf-8') as file_obj:
+        while True:
+            content = file_obj.readline()
+            if not content:
+                break
+            content = content.replace("\n", "")
+            test_labels.append(content)
+    print("file init")
+except:
+    table_path = os.path.join(ROOT_DIR, "new_IXI.csv")
+    files_all = [each for each in os.listdir(REFIST_DIR) if not each.startswith('.')]
+    df = pd.read_csv(table_path)
+    df = df["AGE"]
+    y = df.values
+    y = y.astype(int)
+    train_files, test_files, y, test_labels = train_test_split(files_all, y, test_size=0.1)
 
-train_files, test_files, y, test_labels = train_test_split(files_all, y, test_size=0.1)
+    content = ""
+    for file in train_files:
+        content = content + str(file) + '\n'
+    file_path = 'train_X_data.txt'
+    with open(file_path, mode='w', encoding='utf-8') as file_obj:
+        file_obj.write(content)
 
+    content = ""
+    for file in test_files:
+        content = content + str(file) + '\n'
+    file_path = 'test_X_data.txt'
+    with open(file_path, mode='w', encoding='utf-8') as file_obj:
+        file_obj.write(content)
+
+    content = ""
+    for file in y:
+        content = content + str(file) + '\n'
+    file_path = 'train_Y_data.txt'
+    with open(file_path, mode='w', encoding='utf-8') as file_obj:
+        file_obj.write(content)
+
+    content = ""
+    for file in test_labels:
+        content = content + str(file) + '\n'
+    file_path = 'test_Y_data.txt'
+    with open(file_path, mode='w', encoding='utf-8') as file_obj:
+        file_obj.write(content)
+
+    print("code init")
+print("database init")
 # construct model
 try:
     model = keras.models.load_model('my_model.h5')
@@ -83,7 +152,6 @@ try:
     file_path = 'data.txt'
     with open(file_path, mode='r', encoding='utf-8') as file_obj:
         i = int(file_obj.readline())
-
 except:
     i = 0
 

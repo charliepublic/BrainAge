@@ -42,15 +42,15 @@ REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
 #     if file_name not in file_list:
 #         print(file_name)
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-filePath = 'normalisation/IXI-T1/'
-name_list = os.listdir(filePath)
-i = 0
-file_list = []
-for f in name_list:
-    img = nib.load(os.path.join(REFIST_DIR, f))
-    img_data = img.get_fdata()
-    print(img_data.shape)
-    i = i + 1
-    img_data = np.asarray(img_data)
+# ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+#
+# filePath = 'normalisation/IXI-T1/'
+# name_list = os.listdir(filePath)
+# i = 0
+# file_list = []
+# for f in name_list:
+#     img = nib.load(os.path.join(REFIST_DIR, f))
+#     img_data = img.get_fdata()
+#     print(img_data.shape)
+#     i = i + 1
+#     img_data = np.asarray(img_data)
