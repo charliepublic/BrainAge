@@ -13,7 +13,7 @@
       <excludeFolder url="file://$MODULE_DIR$/normalisation" />
       <excludeFolder url="file://$MODULE_DIR$/segement" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (base) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (base) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

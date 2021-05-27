@@ -4,6 +4,8 @@ import numpy as np
 import os
 import pandas as pd
 import keras
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
 import nibabel as nib
 from keras.models import Model
 from keras.layers.core import Dense, Dropout, Flatten
@@ -14,8 +16,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 
 print(keras.__version__)
-
-batch_size = 10
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
+batch_size = 5
 num_classes = 100
 epochs = 20
 learning_rate = 0.01
@@ -43,41 +46,53 @@ train_files, test_files, y, test_labels = train_test_split(files_all, y, test_si
 dimx, dimy, channels = 182, 218, 144
 inpx = Input(shape=(dimx, dimy, channels, 1), name='inpx')
 x = Conv3D(2, (3, 3, 3), activation='relu',
-                  padding='same', name='conv1')(inpx)
+           padding='same', name='conv1')(inpx)
+
 x = Conv3D(4, (3, 3, 3), activation='relu',
-                  padding='same', name='conv2')(x)
-x = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
+           padding='same', name='conv2')(x)
+x = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
                  padding='valid', name='pool2')(x)
+
 x = Conv3D(8, (3, 3, 3), activation='relu',
-                  padding='same', name='conv3')(x)
-x = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
+           padding='same', name='conv3')(x)
+x = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
                  padding='valid', name='pool3')(x)
+
+x = Conv3D(8, (3, 3, 3), activation='relu',
+           padding='same', name='conv4')(x)
+x = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+                 padding='valid', name='pool4')(x)
+
 hx = Flatten()(x)
-score = Dense(2, activation='softmax', name='fc8')(hx)
+score = Dense(100, activation='softmax', name='fc8')(hx)
 model = Model(inputs=inpx, outputs=score)
-# opt = tf.keras.optimizers.Adam(lr=learning_rate, decay=decay)
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.summary()
 
 print("model init")
 # train model
 train_x = []
+i = 0
 for f in train_files:
     img = nib.load(os.path.join(REFIST_DIR, f))
     img_data = img.get_fdata()
+    i = i + 1
     img_data = np.asarray(img_data)
     img_data = img_data[:, :, 0:144]
     train_x.append(img_data)
-x_train = np.asarray(train_x)
-print('\n iteration number :', 1, '\n')
-x_train = np.expand_dims(x_train, 4)
-print('\n', x_train.shape)
-y_train = y
-y_train = keras.utils.to_categorical(y_train, num_classes)
+    if i % 10 == 0:
+        times = int(i/10)
+        x_train = np.asarray(train_x)
+        x_train = np.expand_dims(x_train, 4)
+        y_train = y[(times-1)*10:times*10]
+        print(y_train)
+        print(len(y_train))
+        y_train = to_categorical(y_train, num_classes)
 
-model.fit(x_train, y_train,
-          batch_size=batch_size,
-          epochs=epochs, verbose=2, validation_split=validation_split)
+        model.fit(x_train, y_train,
+                  batch_size=batch_size,
+                  epochs=epochs, verbose=2, validation_split=validation_split)
+        train_x = []
 
 # evaluate
 test_x, test_y = [], test_labels
@@ -89,7 +104,7 @@ for i, f in enumerate(test_files):
     test_x.append(img_data)
 test_x = np.asarray(test_x)
 test_x = np.expand_dims(test_x, 4)
-test_y = keras.utils.to_categorical(test_y, num_classes)
+test_y = to_categorical(test_y, num_classes)
 pred = model.predict([test_x])
 
 pred = [i.argmax() for i in pred]
