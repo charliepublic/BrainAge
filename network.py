@@ -4,24 +4,19 @@ import numpy as np
 import os
 import pandas as pd
 import keras
-import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import nibabel as nib
-from keras.models import Model
-from keras.layers.core import Dense, Dropout, Flatten
+from keras.layers.core import Flatten
 from keras.layers.convolutional import Conv3D, MaxPooling3D
-from keras.layers import Input, Lambda, Embedding, Bidirectional, LSTM, Dense
+from keras.layers import Input, Dense
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score
 
-# print(keras.__version__)
-# physical_devices = tf.config.list_physical_devices('CPU')
-# print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 batch_size = 2
 num_classes = 100
-epochs = 40
-rate = 10
+epochs = 10
+rate = 70
+train_number = 490
 learning_rate = 0.01
 decay = 1e-6
 validation_split = 0.2
@@ -137,10 +132,6 @@ except:
                      padding='same', name='conv5'))
     model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
                            padding='valid', name='pool5'))
-    model.add(Conv3D(2, (3, 3, 3), activation='relu',
-                     padding='same', name='conv6'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                           padding='valid', name='pool6'))
     model.add(Flatten())
     model.add(Dense(num_classes, activation='softmax', name='fc8'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -157,6 +148,8 @@ except:
 
 train_files = train_files[i:]
 for f in train_files:
+    if i == train_number:
+        break
     img = nib.load(os.path.join(REFIST_DIR, f))
     img_data = img.get_fdata()
     i = i + 1
@@ -164,11 +157,15 @@ for f in train_files:
     img_data = img_data[:, :, 0:144]
     train_x.append(img_data)
 
-    if i % rate == 0:
+    if i % rate == 0 or i == train_number:
         times = int(i / rate)
         x_train = np.asarray(train_x)
         x_train = np.expand_dims(x_train, 4)
-        y_train = y[(times - 1) * rate:times * rate]
+        if i != train_number:
+            y_train = y[(times - 1) * rate:times * rate]
+        else:
+            y_train = y[times * rate:]
+
         y_train = to_categorical(y_train, num_classes)
 
         model.fit(x_train, y_train,
@@ -184,23 +181,32 @@ for f in train_files:
 
 print("______________________________________")
 print("training finished")
+
 # evaluate
 test_x, test_y = [], test_labels
-for i, f in enumerate(test_files):
+i = 0
+rate = 5
+for f in test_files:
     img = nib.load(os.path.join(REFIST_DIR, f))
     img_data = img.get_fdata()
     img_data = np.asarray(img_data)
     img_data = img_data[:, :, 0:144]
-    print(img_data.shape())
     test_x.append(img_data)
-test_x = np.asarray(test_x)
-test_x = np.expand_dims(test_x, 4)
-test_y = to_categorical(test_y, num_classes)
-pred = model.predict([test_x])
+    i = i + 1
+    if i % rate == 0:
+        times = int(i / rate)
+        test_x = np.asarray(test_x)
+        test_x = np.expand_dims(test_x, 4)
+        if i == train_number:
+            y_test = y[times * rate:]
+        else:
+            y_test = test_y[(times - 1) * rate:times * rate]
 
-pred = [i.argmax() for i in pred]
+        pred = model.predict([test_x])
 
-mae = mean_absolute_error(test_labels, pred)
-print('\n\n MAE is: ', mae)
-mse = mean_squared_error(test_labels, pred)
-print('\n\n MSE is: ', mse)
+        pred = [i.argmax() for i in pred]
+        print(pred)
+        print(y_test)
+        mae = mean_absolute_error(y_test, pred)
+        print('\n\n MAE is: ', mae)
+        test_x = []
