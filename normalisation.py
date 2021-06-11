@@ -6,7 +6,6 @@ from intensity_normalization.normalize import gmm
 
 filePath = 'regist/IXI-T1/'
 name_list = os.listdir(filePath)
-
 outputPath = 'normalisation/IXI-T1/'
 try:
     processed_list = os.listdir(outputPath)
@@ -25,7 +24,7 @@ for file_name in name_list:
         normalised = gmm.gmm_normalize(proxy)
         nib.save(normalised, output_address)
     except:
-        print('！！！！！！！！！！')
+        print('！！！！error！！！！！！')
         print(file_name)
         print('!!!!!!!!!!!!!!!!!!')
         continue
