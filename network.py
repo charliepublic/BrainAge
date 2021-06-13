@@ -5,100 +5,89 @@ import os
 import pandas as pd
 import keras
 import nibabel as nib
+from keras import callbacks
 from keras.layers.core import Flatten, Dropout
+from sklearn.metrics import mean_absolute_error
+from keras.utils.np_utils import to_categorical
 from keras.layers.convolutional import Conv3D, MaxPooling3D
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, AlphaDropout
 from sklearn.model_selection import train_test_split
 
 batch_size = 2
-bias = 15
-num_classes = 90 - bias
-epochs = 40
+epochs = 10
+age_range = 10
+bias = int(20 / age_range)
+num_classes = int(90 / age_range) - bias
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT_DIR, 'new_data')
-
 REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
+
+
+def loading_file(file_path):
+    return_list = []
+    with open(file_path, mode='r', encoding='utf-8') as file_obj:
+        while True:
+            content = file_obj.readline()
+            if not content:
+                break
+            content = content.replace("\n", "")
+            return_list.append(content)
+    return return_list
+
+
+def add_file(file_path, target_list):
+    content = ""
+    for file in target_list:
+        content = content + str(file) + '\n'
+    with open(file_path, mode='w', encoding='utf-8') as file_obj:
+        file_obj.write(content)
+
+
+def load_image(file_list):
+    x = []
+    for f in file_list:
+        img = nib.load(os.path.join(REFIST_DIR, f))
+        img_data = img.get_fdata()
+        img_data = np.asarray(img_data)
+        x.append(img_data)
+    x = np.asarray(x)
+    x = np.expand_dims(x, 4)
+    return x
+
 
 # data init
 try:
-    test_files = []
-    y = []
-    test_labels = []
-    train_files = []
+    init_train_x = []
+    init_train_y = []
+    init_test_x = []
+    init_test_y = []
     file_path = 'train_X_data.txt'
-    with open(file_path, mode='r', encoding='utf-8') as file_obj:
-        while True:
-            content = file_obj.readline()
-            if not content:
-                break
-            content = content.replace("\n", "")
-            train_files.append(content)
-
+    init_train_x = loading_file(file_path)
     file_path = 'train_Y_data.txt'
-    with open(file_path, mode='r', encoding='utf-8') as file_obj:
-        while True:
-            content = file_obj.readline()
-            if not content:
-                break
-            content = content.replace("\n", "")
-            y.append(float(content))
-
+    init_train_y = loading_file(file_path)
     file_path = 'test_X_data.txt'
-    with open(file_path, mode='r', encoding='utf-8') as file_obj:
-        while True:
-            content = file_obj.readline()
-            if not content:
-                break
-            content = content.replace("\n", "")
-            test_files.append(content)
-
+    init_test_x = loading_file(file_path)
     file_path = 'test_Y_data.txt'
-    with open(file_path, mode='r', encoding='utf-8') as file_obj:
-        while True:
-            content = file_obj.readline()
-            if not content:
-                break
-            content = content.replace("\n", "")
-            test_labels.append(float(content))
+    init_test_y = loading_file(file_path)
     print("file init")
 except:
     table_path = os.path.join(ROOT_DIR, "new_IXI.csv")
     files_all = [each for each in os.listdir(REFIST_DIR) if not each.startswith('.')]
     df = pd.read_csv(table_path)
     df = df["AGE"]
-    y = df.values - bias
-    y = y.astype(float)
-    train_files, test_files, y, test_labels = train_test_split(files_all, y, test_size=0.1)
-
-    content = ""
-    for file in train_files:
-        content = content + str(file) + '\n'
+    labels = np.round(df.values) / age_range - bias
+    labels = labels.astype(int)
+    init_train_x, init_test_x, init_train_y, init_test_y = train_test_split(files_all,
+                                                                            labels, test_size=0.2)
     file_path = 'train_X_data.txt'
-    with open(file_path, mode='w', encoding='utf-8') as file_obj:
-        file_obj.write(content)
-
-    content = ""
-    for file in test_files:
-        content = content + str(file) + '\n'
+    add_file(file_path, init_train_x)
     file_path = 'test_X_data.txt'
-    with open(file_path, mode='w', encoding='utf-8') as file_obj:
-        file_obj.write(content)
-
-    content = ""
-    for file in y:
-        content = content + str(file) + '\n'
+    add_file(file_path, init_test_x)
     file_path = 'train_Y_data.txt'
-    with open(file_path, mode='w', encoding='utf-8') as file_obj:
-        file_obj.write(content)
-
-    content = ""
-    for file in test_labels:
-        content = content + str(file) + '\n'
+    add_file(file_path, init_train_y)
     file_path = 'test_Y_data.txt'
-    with open(file_path, mode='w', encoding='utf-8') as file_obj:
-        file_obj.write(content)
-
+    add_file(file_path, init_test_y)
     print("code init")
 print("database init")
 
@@ -119,49 +108,38 @@ except:
                      padding='same', name='conv3'))
     model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
                            padding='valid', name='pool3'))
-    model.add(Conv3D(8, (3, 3, 3), activation='relu',
-                     padding='same', name='conv4'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-                           padding='valid', name='pool4'))
-    model.add(Flatten())
-    model.add(Dense(100, activation='relu', name='full_connect'))
     model.add(Dropout(0.5))
-    model.add(Dense(1, activation='relu', name='final'))
-    model.compile(loss='mean_absolute_error', optimizer='adam')
+    model.add(Flatten())
+    model.add(Dense(num_classes, activation='softmax', name='full_connect'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics="accuracy")
     model.summary()
 
+if epochs != 0:
     # train model
     train_x = []
-    for f in train_files:
-        img = nib.load(os.path.join(REFIST_DIR, f))
-        img_data = img.get_fdata()
-        img_data = np.asarray(img_data)
-        train_x.append(img_data)
+    train_files, val_files, train_labels, val_labels = train_test_split(init_train_x,
+                                                                        init_train_y, test_size=0.1)
+    x_train = load_image(train_files)
+    y_train = to_categorical(train_labels, num_classes)
+
+    x_val = load_image(val_files)
+    y_val = to_categorical(val_labels, num_classes)
     print("database_added")
-    x_train = np.asarray(train_x)
-    x_train = np.expand_dims(x_train, 4)
-    y_train = np.asarray(y)
+
     model.fit(x_train, y_train,
               batch_size=batch_size,
-              epochs=epochs, verbose=1)
+              epochs=epochs, verbose=1, validation_data=(x_val, y_val))
     model.save('my_model.h5')
     print("training finished")
-print("model init")
+    print("model init")
 
 # evaluate
-test_x, test_y = [], test_labels
-for f in test_files:
-    img = nib.load(os.path.join(REFIST_DIR, f))
-    img_data = img.get_fdata()
-    img_data = np.asarray(img_data)
-    test_x.append(img_data)
+x_test = load_image(init_test_x)
+y_test = to_categorical(init_test_y, num_classes)
+acc = model.evaluate(x_test, y_test)
+print('\n\n accuracy is: ', acc[1])
 
-test_x = np.asarray(test_x)
-x_test = np.expand_dims(test_x, 4)
-y_test = np.asarray(test_y)
-mae = model.evaluate(x_test, y_test)
+pred = model.predict([x_test])
+pred = [i.argmax() for i in pred]
+mae = mean_absolute_error(init_test_y, pred)
 print('\n\n MAE is: ', mae)
-
-pre = model.predict(x_test)
-print(pre)
-print(y_test)
