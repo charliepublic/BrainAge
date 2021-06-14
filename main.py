@@ -15,5 +15,5 @@ p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 # network
 cmd = "python filter.py"
 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-cmd = "python network.py"
+cmd = "python network_with_70_classes.py"
 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
