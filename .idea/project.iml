@@ -13,6 +13,13 @@
       <excludeFolder url="file://$MODULE_DIR$/normalisation" />
       <excludeFolder url="file://$MODULE_DIR$/segement" />
       <excludeFolder url="file://$MODULE_DIR$/new_data" />
+      <excludeFolder url="file://$MODULE_DIR$/segment_cfs" />
+      <excludeFolder url="file://$MODULE_DIR$/logfile" />
+      <excludeFolder url="file://$MODULE_DIR$/logfile7" />
+      <excludeFolder url="file://$MODULE_DIR$/logfile70" />
+      <excludeFolder url="file://$MODULE_DIR$/segment_GM" />
+      <excludeFolder url="file://$MODULE_DIR$/segment_WM" />
+      <excludeFolder url="file://$MODULE_DIR$/Segment_logfile" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (base) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

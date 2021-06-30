@@ -26,6 +26,7 @@ REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
 
 
 def loading_file(file_path):
+    file_path = "logfile/" + file_path
     return_list = []
     with open(file_path, mode='r', encoding='utf-8') as file_obj:
         while True:
@@ -39,6 +40,7 @@ def loading_file(file_path):
 
 def add_file(file_path, target_list):
     content = ""
+    file_path = "logfile/"+file_path
     for file in target_list:
         content = content + str(file) + '\n'
     with open(file_path, mode='w', encoding='utf-8') as file_obj:
@@ -59,19 +61,19 @@ def load_image(file_list):
 
 # data init
 try:
-    file_path = 'logfile/train_X_data.txt'
+    file_path = 'train_X_data.txt'
     train_files = loading_file(file_path)
-    file_path = 'logfile/train_Y_data.txt'
+    file_path = 'train_Y_data.txt'
     train_labels = loading_file(file_path)
 
-    file_path = 'logfile/test_X_data.txt'
+    file_path = 'test_X_data.txt'
     init_test_x = loading_file(file_path)
-    file_path = 'logfile/test_Y_data.txt'
+    file_path = 'test_Y_data.txt'
     init_test_y = loading_file(file_path)
 
-    file_path = 'logfile/val_x_data.txt'
+    file_path = 'val_x_data.txt'
     val_files = loading_file(file_path)
-    file_path = 'logfile/val_Y_data.txt'
+    file_path = 'val_Y_data.txt'
     val_labels = loading_file(file_path)
     print("file init")
 except:
@@ -82,10 +84,10 @@ except:
     labels = np.round(df.values)/50
     labels = labels.astype(int)
     init_train_x, init_test_x, init_train_y, init_test_y = train_test_split(files_all,
-                                                                            labels, test_size=0.2)
+                                                                            labels, test_size=0.1)
 
     train_files, val_files, train_labels, val_labels = train_test_split(init_train_x,
-                                                                        init_train_y, test_size=0.2)
+                                                                        init_train_y, test_size=0.1)
 
     file_path = 'logfile/train_X_data.txt'
     add_file(file_path, train_files)
@@ -105,24 +107,27 @@ except:
     print("code init")
 print("database init")
 
+model_name = 'my_model_2.h5'
 # construct model
 try:
-    model = keras.models.load_model('my_model_2.h5')
+    model = keras.models.load_model(model_name)
 except:
     dimx, dimy, channels = 91, 109, 91
     model = keras.Sequential()
     model.add(InputLayer(input_shape=(dimx, dimy, channels, 1), name="input"))
-    model.add(Conv3D(4, (3, 3, 3), activation='relu',
+    # model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+    #                       padding='valid', name='resize'))
+    model.add(Conv3D(2, (3, 3, 3), activation='relu',
                      padding='same', name='conv1'))
-    model.add(Conv3D(8, (3, 3, 3), activation='relu',
+    model.add(Conv3D(4, (3, 3, 3), activation='relu',
                      padding='same', name='conv2'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool2'))
     model.add(Conv3D(8, (3, 3, 3), activation='relu',
                      padding='same', name='conv3'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool3'))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
     model.add(Flatten())
     model.add(Dense(num_classes, activation='softmax', name='full_connect'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics="accuracy")
@@ -144,12 +149,12 @@ if epochs != 0:
     print("database_added")
 
     early_stopping = keras.callbacks.EarlyStopping(monitor='val_accuracy',
-                                                   patience=2, verbose=0, mode='auto')
+                                                   patience=1, verbose=0, mode='auto')
 
     model.fit(x_train, y_train,
               batch_size=batch_size,
               epochs=epochs, verbose=1, validation_data=(x_val, y_val),callbacks = [early_stopping])
-    model.save('my_model_2.h5')
+    model.save(model_name)
     del x_train
     print("training finished")
     print("model init")
