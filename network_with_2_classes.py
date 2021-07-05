@@ -121,13 +121,13 @@ except:
                      padding='same', name='conv1'))
     model.add(Conv3D(4, (3, 3, 3), activation='relu',
                      padding='same', name='conv2'))
-    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(2, 2, 2),
                            padding='valid', name='pool2'))
     model.add(Conv3D(8, (3, 3, 3), activation='relu',
                      padding='same', name='conv3'))
-    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(2, 2, 2),
                            padding='valid', name='pool3'))
-    # model.add(Dropout(0.5))
+    model.add(Dropout(0.5))
     model.add(Flatten())
     model.add(Dense(num_classes, activation='softmax', name='full_connect'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics="accuracy")
@@ -167,9 +167,9 @@ y_test = to_categorical(init_test_y, num_classes)
 acc = model.evaluate(x_test, y_test,batch_size=2)
 print('\n\n accuracy is: ', acc[1])
 
-pred = model.predict([x_test],batch_size=2)
-pred = [i.argmax() for i in pred]
-init_test_y = np.asarray(init_test_y)
-init_test_y = init_test_y.astype(int)
-mae = mean_absolute_error(init_test_y, pred)
-print('\n\n MAE is: ', mae)
+# pred = model.predict([x_test],batch_size=2)
+# pred = [i.argmax() for i in pred]
+# init_test_y = np.asarray(init_test_y)
+# init_test_y = init_test_y.astype(int)
+# mae = mean_absolute_error(init_test_y, pred)
+# print('\n\n MAE is: ', mae)
