@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 
 batch_size = 2
 epochs = 20
-age_range = 10
+age_range = 20
 bias = int(20 / age_range)
 num_classes = int(90 / age_range) - bias
 
@@ -23,10 +23,15 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT_DIR, 'new_data')
 REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
 
+basic_path ="logfile3/"
+try:
+    os.mkdir(basic_path)
+except:
+    pass
 
 def loading_file(file_path):
     return_list = []
-    file_path = "logfile7/" + file_path
+    file_path = basic_path + file_path
     with open(file_path, mode='r', encoding='utf-8') as file_obj:
         while True:
             content = file_obj.readline()
@@ -39,7 +44,7 @@ def loading_file(file_path):
 
 def add_file(file_path, target_list):
     content = ""
-    file_path = "logfile7/"+ file_path
+    file_path = basic_path+ file_path
     for file in target_list:
         content = content + str(file) + '\n'
     with open(file_path, mode='w', encoding='utf-8') as file_obj:
@@ -82,6 +87,9 @@ except:
     df = df["AGE"]
     labels = np.round(df.values)/age_range - bias
     labels = labels.astype(int)
+    print(labels)
+    labels[labels > 2] = 2
+    print(labels)
     init_train_x, init_test_x, init_train_y, init_test_y = train_test_split(files_all,
                                                                             labels, test_size=0.2)
 
@@ -108,22 +116,22 @@ print("database init")
 
 # construct model
 try:
-    model = keras.models.load_model('my_model_7.h5')
+    model = keras.models.load_model('my_model_3.h5')
 except:
     dimx, dimy, channels = 91, 109, 91
     model = keras.Sequential()
     model.add(Input(shape=(dimx, dimy, channels, 1), name="input"))
     model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
                            padding='valid', name='resize'))
-    model.add(Conv3D(4, (3, 3, 3), activation='relu',
+    model.add(Conv3D(2, (3, 3, 3), activation='relu',
                      padding='same', name='conv1'))
-    model.add(Conv3D(8, (3, 3, 3), activation='relu',
+    model.add(Conv3D(4, (3, 3, 3), activation='relu',
                      padding='same', name='conv2'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool2'))
     model.add(Conv3D(8, (3, 3, 3), activation='relu',
                      padding='same', name='conv3'))
-    model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
+    model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool3'))
     model.add(Dropout(0.5))
     model.add(Flatten())
@@ -136,36 +144,26 @@ if epochs != 0:
     train_x = []
 
     x_train = load_image(train_files)
-    # y_train = np.asarray(train_labels)
-    # y_train =y_train.astype(float)
     y_train = to_categorical(train_labels, num_classes)
 
     x_val = load_image(val_files)
-    # y_val = np.asarray(val_labels)
-    # y_val =y_val.astype(float)
     y_val = to_categorical(val_labels, num_classes)
     print("database_added")
 
     early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss',
-                                                   patience=3, verbose=0, mode='auto')
+                                                   patience=5, verbose=0, mode='auto')
 
     model.fit(x_train, y_train,
               batch_size=batch_size,
               epochs=epochs, verbose=1, validation_data=(x_val, y_val),callbacks = [early_stopping])
-    model.save('my_model_7.h5')
+    model.save('my_model_3.h5')
     del x_train
     print("training finished")
     print("model init")
 
 # evaluate
 x_test = load_image(init_test_x)
-# y_test = np.asarray(init_test_y)
-# y_test = y_test.astype(float)
 y_test = to_categorical(init_test_y, num_classes)
 acc = model.evaluate(x_test, y_test,batch_size=2)
 print('\n\n accuracy is: ', acc[1])
 
-pred = model.predict([x_test],batch_size=2)
-pred = [i.argmax() for i in pred]
-mae = mean_absolute_error(init_test_y, pred)
-print('\n\n MAE is: ', mae)

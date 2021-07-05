@@ -11,7 +11,7 @@ from keras.layers.core import Flatten, Dropout
 from sklearn.metrics import mean_absolute_error
 from keras.utils.np_utils import to_categorical
 from keras.layers.convolutional import Conv3D, MaxPooling3D
-from keras.layers import Input, Dense, AlphaDropout
+from keras.layers import Input, Dense
 from sklearn.model_selection import train_test_split
 
 batch_size = 2
@@ -21,15 +21,21 @@ bias = int(20 / age_range)
 num_classes = 2
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-flag = "WM"
+flag = "WM+GM"
+
 if flag == "GM":
     DATA_DIR = os.path.join(ROOT_DIR, 'segment_GM')
 elif flag == "CFS":
     DATA_DIR = os.path.join(ROOT_DIR, 'segment_cfs')
+elif flag == "CFS+GM":
+    DATA_DIR = os.path.join(ROOT_DIR, 'segment_GM+CFS')
+elif flag == "CFS+WM":
+    DATA_DIR = os.path.join(ROOT_DIR, 'segment_WM+CFS')
+elif flag == "WM+GM":
+    DATA_DIR = os.path.join(ROOT_DIR, 'segment_WM+GM')
 else:
     DATA_DIR = os.path.join(ROOT_DIR, 'segment_WM')
 REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
-
 
 
 def loading_file(file_path):
@@ -47,7 +53,7 @@ def loading_file(file_path):
 
 def add_file(file_path, target_list):
     content = ""
-    file_path = "Segment_logfile/"+file_path
+    file_path = "Segment_logfile/" + file_path
     for file in target_list:
         content = content + str(file) + '\n'
     with open(file_path, mode='w', encoding='utf-8') as file_obj:
@@ -88,7 +94,7 @@ except:
     files_all = [each for each in os.listdir(REFIST_DIR) if not each.startswith('.')]
     df = pd.read_csv(table_path)
     df = df["AGE"]
-    labels = np.round(df.values)/50
+    labels = np.round(df.values) / 50
     labels = labels.astype(int)
     init_train_x, init_test_x, init_train_y, init_test_y = train_test_split(files_all,
                                                                             labels, test_size=0.1)
@@ -122,8 +128,6 @@ except:
     dimx, dimy, channels = 91, 109, 91
     model = keras.Sequential()
     model.add(InputLayer(input_shape=(dimx, dimy, channels, 1), name="input"))
-    # model.add(MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2),
-    #                       padding='valid', name='resize'))
     model.add(Conv3D(2, (3, 3, 3), activation='relu',
                      padding='same', name='conv1'))
     model.add(Conv3D(4, (3, 3, 3), activation='relu',
@@ -134,7 +138,7 @@ except:
                      padding='same', name='conv3'))
     model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool3'))
-    # model.add(Dropout(0.5))
+    model.add(Dropout(0.5))
     model.add(Flatten())
     model.add(Dense(num_classes, activation='softmax', name='full_connect'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics="accuracy")
@@ -153,10 +157,9 @@ if epochs != 0:
 
     early_stopping = keras.callbacks.EarlyStopping(monitor='val_accuracy',
                                                    patience=1, verbose=0, mode='auto')
-
     model.fit(x_train, y_train,
               batch_size=batch_size,
-              epochs=epochs, verbose=1, validation_data=(x_val, y_val),callbacks = [early_stopping])
+              epochs=epochs, verbose=1, validation_data=(x_val, y_val), callbacks=[early_stopping])
     model_name = flag + "_my_model_2.h5"
     model.save(model_name)
     del x_train
@@ -166,12 +169,12 @@ if epochs != 0:
 # evaluate
 x_test = load_image(init_test_x)
 y_test = to_categorical(init_test_y, num_classes)
-acc = model.evaluate(x_test, y_test,batch_size=2)
+acc = model.evaluate(x_test, y_test, batch_size=2)
 print('\n\n accuracy is: ', acc[1])
 
-pred = model.predict([x_test],batch_size=2)
-pred = [i.argmax() for i in pred]
-init_test_y = np.asarray(init_test_y)
-init_test_y = init_test_y.astype(int)
-mae = mean_absolute_error(init_test_y, pred)
-print('\n\n MAE is: ', mae)
+# pred = model.predict([x_test], batch_size=2)
+# pred = [i.argmax() for i in pred]
+# init_test_y = np.asarray(init_test_y)
+# init_test_y = init_test_y.astype(int)
+# mae = mean_absolute_error(init_test_y, pred)
+# print('\n\n MAE is: ', mae)

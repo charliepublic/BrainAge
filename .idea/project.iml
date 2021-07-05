@@ -20,6 +20,10 @@
       <excludeFolder url="file://$MODULE_DIR$/segment_GM" />
       <excludeFolder url="file://$MODULE_DIR$/segment_WM" />
       <excludeFolder url="file://$MODULE_DIR$/Segment_logfile" />
+      <excludeFolder url="file://$MODULE_DIR$/segment_WM+GM" />
+      <excludeFolder url="file://$MODULE_DIR$/segment_WM+CFS" />
+      <excludeFolder url="file://$MODULE_DIR$/segment_GM+CFS" />
+      <excludeFolder url="file://$MODULE_DIR$/logfile3" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (base) (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
