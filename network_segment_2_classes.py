@@ -121,25 +121,29 @@ except:
 print("database init")
 
 # construct model
+model_name = flag + "_new_my_model_2.h5"
 try:
-    model_name = flag + '_my_model_2.h5'
     model = keras.models.load_model(model_name)
 except:
+    print("code init start")
     dimx, dimy, channels = 91, 109, 91
     model = keras.Sequential()
     model.add(InputLayer(input_shape=(dimx, dimy, channels, 1), name="input"))
     model.add(Conv3D(2, (3, 3, 3), activation='relu',
                      padding='same', name='conv1'))
-    model.add(Conv3D(4, (3, 3, 3), activation='relu',
-                     padding='same', name='conv2'))
     model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool2'))
+    model.add(Conv3D(4, (3, 3, 3), activation='relu',
+                     padding='same', name='conv2'))
     model.add(Conv3D(8, (3, 3, 3), activation='relu',
                      padding='same', name='conv3'))
     model.add(MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2),
                            padding='valid', name='pool3'))
-    model.add(Dropout(0.5))
     model.add(Flatten())
+    model.add(Dense(10,activation='relu',name='dense1'))
+    model.add(Dropout(0.5))
+    model.add(Dense(5, activation='relu', name='dense2'))
+    model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='softmax', name='full_connect'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics="accuracy")
     model.summary()
@@ -160,7 +164,7 @@ if epochs != 0:
     model.fit(x_train, y_train,
               batch_size=batch_size,
               epochs=epochs, verbose=1, validation_data=(x_val, y_val), callbacks=[early_stopping])
-    model_name = flag + "_my_model_2.h5"
+
     model.save(model_name)
     del x_train
     print("training finished")
