@@ -153,6 +153,9 @@ except:
 print("database init")
 
 # construct model
+# #Possible recommendations: It is not recommended to use 3D images. It should be converted to 2d to
+# increase the number of samples, For example each 3D image should be taken some part of the slice for training. This
+# may need  more time  to reconstruct the network and adjust the hyper_parameters
 model_name = flag + "_new_model_2_best.h5"
 try:
     model = keras.models.load_model(model_name)
