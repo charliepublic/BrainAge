@@ -1,9 +1,11 @@
-import numpy as np
 import os
-import pandas as pd
+
 import nibabel as nib
+import numpy as np
+import pandas as pd
 import scipy.ndimage.interpolation as Inter
 
+# this code only do the whole brain filter
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT_DIR, 'normalisation')
 
@@ -44,7 +46,6 @@ for file_name in file_list:
     if file_name not in list_id:
         delet_list.append(file_name)
         print(file_name)
-
 
 for file_name in name_list:
     number = int(file_name.split("-")[0][3:])
