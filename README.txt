@@ -1,4 +1,5 @@
 How to compile the code?
+Please put original data and code under one folder.
 Run the main.py file and this project will auto run preprocess, data filter and CNN training.
 
 The preprocess.py file will do preprocess about the IXI dataset including skull strip, N4_correction,
@@ -16,3 +17,5 @@ How to run and how to obtain the results?
 The network_2_classes.py will generate 2 plots—— accuracy and loss
 
 The close_age_range_classification.py will put all accuracy results in logfile.txt
+
+More detail can be check in https://github.com/charliepublic/BrainAge
