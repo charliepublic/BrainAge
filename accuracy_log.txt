@@ -1,0 +1,202 @@
+GM+CFS
+2 accuracy is: 0.6333333253860474
+3 accuracy is: 0.46666666865348816
+4 accuracy is: 0.6333333253860474
+5 accuracy is: 0.46666666865348816
+6 accuracy is: 0.6666666865348816
+7 accuracy is: 0.5
+
+segment_cfs
+2 accuracy is: 0.5333333611488342
+3 accuracy is: 0.4000000059604645
+4 accuracy is: 0.5
+5 accuracy is: 0.6666666865348816
+6 accuracy is: 0.7666666507720947
+7 accuracy is: 0.5
+
+WM+CFS
+2 accuracy is: 0.5
+3 accuracy is: 0.5
+4 accuracy is: 0.5
+5 accuracy is: 0.6000000238418579
+6 accuracy is: 0.566666
+7 accuracy is: 0.5
+
+WM+GM
+2 accuracy is: 0.46666666865348816
+3 accuracy is: 0.6000000238418579
+4 accuracy is: 0.36666667461395264
+5 accuracy is: 0.6333333253860474
+6 accuracy is: 0.800000011920929
+7 accuracy is: 0.5
+
+GM
+2/3 accuracy is:  0.6499999761581421
+3/4 accuracy is:  0.6000000238418579
+4/5 accuracy is:  0.5
+5/6 accuracy is:  0.5
+6/7 accuracy is:  0.5
+7/8 accuracy is:  0.550000011920929
+
+WM
+2 accuracy is: 0.5
+3 accuracy is: 0.5
+4 accuracy is: 0.5
+5 accuracy is: 0.6666666865348816
+6 accuracy is: 0.5
+7 accuracy is: 0.5
+--------------------------------------------------
+2   segment_cfs
+2 accuracy is: 0.5666666626930237
+3 accuracy is: 0.800000011920929
+4 accuracy is: 0.7666666507720947
+5 accuracy is: 0.8333333134651184
+6 accuracy is: 0.5
+
+2   segment_GM
+2 accuracy is: 0.6000000238418579
+3 accuracy is: 0.800000011920929
+4 accuracy is: 0.6333333253860474
+5 accuracy is: 0.5666666626930237
+6 accuracy is: 0.5
+
+2   segment_WM
+2 accuracy is: 0.5333333611488342
+3 accuracy is: 0.5
+4 accuracy is: 0.5666666626930237
+5 accuracy is: 0.699999988079071
+6 accuracy is: 0.5
+
+2   segment_GM+CFS
+2 accuracy is: 0.699999988079071
+3 accuracy is: 0.6666666865348816
+4 accuracy is: 0.8333333134651184
+5 accuracy is: 0.8999999761581421
+6 accuracy is: 0.5
+
+2   segment_WM+GM
+2 accuracy is: 0.6666666865348816
+3 accuracy is: 0.7333333492279053
+4 accuracy is: 0.5
+5 accuracy is: 0.8666666746139526
+6 accuracy is: 0.5
+
+2   segment_WM+CFS
+2 accuracy is: 0.5
+3 accuracy is: 0.7333333492279053
+4 accuracy is: 0.5666666626930237
+5 accuracy is: 0.7666666507720947
+6 accuracy is: 0.5
+--------------------------------------------------
+3   segment_cfs
+2 accuracy is: 0.9333333373069763
+3 accuracy is: 0.8999999761581421
+4 accuracy is: 1.0
+5 accuracy is: 0.5
+
+3   segment_GM
+2 accuracy is: 0.7666666507720947
+3 accuracy is: 0.5
+4 accuracy is: 0.699999988079071
+5 accuracy is: 1.0
+
+3   segment_WM
+2 accuracy is: 0.8333333134651184
+3 accuracy is: 0.8666666746139526
+4 accuracy is: 1.0
+5 accuracy is: 1.0
+
+3   segment_GM+CFS
+2 accuracy is: 0.5
+3 accuracy is: 0.7666666507720947
+4 accuracy is: 1.0
+5 accuracy is: 1.0
+
+3   segment_WM+GM
+2 accuracy is: 0.8999999761581421
+3 accuracy is: 0.9333333373069763
+4 accuracy is: 1.0
+5 accuracy is: 1.0
+
+3   segment_WM+CFS
+2 accuracy is: 0.6666666865348816
+3 accuracy is: 0.8333333134651184
+4 accuracy is: 0.8999999761581421
+5 accuracy is: 0.5
+--------------------------------------------------
+4   segment_cfs
+2 accuracy is: 0.8999999761581421
+3 accuracy is: 1.0
+4 accuracy is: 1.0
+
+4   segment_GM
+2 accuracy is: 0.8999999761581421
+3 accuracy is: 0.9333333373069763
+4 accuracy is: 1.0
+
+4   segment_WM
+2 accuracy is: 0.800000011920929
+3 accuracy is: 0.9666666388511658
+4 accuracy is: 1.0
+
+4   segment_GM+CFS
+2 accuracy is: 0.9333333373069763
+3 accuracy is: 1.0
+4 accuracy is: 1.0
+
+4   segment_WM+CFS
+2 accuracy is: 0.699999988079071
+3 accuracy is: 1.0
+4 accuracy is: 0.5
+
+4   segment_WM+GM
+2 accuracy is: 0.8999999761581421
+3 accuracy is: 1.0
+4 accuracy is: 0.5
+--------------------------------------------------
+5   segment_cfs
+2 accuracy is: 1.0
+3 accuracy is: 1.0
+
+5   segment_GM
+2 accuracy is: 0.9333333373069763
+3 accuracy is: 0.5
+
+5   segment_WM
+2 accuracy is: 0.9333333373069763
+3 accuracy is: 0.5
+
+5   segment_GM+CFS
+2 accuracy is: 1.0
+3 accuracy is: 1.0
+
+5   segment_WM+CFS
+2 accuracy is: 1.0
+3 accuracy is: 0.5
+
+5   segment_WM+GM
+2 accuracy is: 1.0
+3 accuracy is: 1.0
+--------------------------------------------------
+6   segment_cfs
+2 accuracy is: 1.0
+
+6   segment_GM
+2 accuracy is: 0.5
+
+6   segment_WM
+2 accuracy is: 0.5
+
+6   segment_GM+CFS
+2 accuracy is: 1.0
+
+6   segment_WM+CFS
+2 accuracy is: 0.5
+
+6   segment_WM+GM
+2 accuracy is: 1.0
+
+
+
+
+

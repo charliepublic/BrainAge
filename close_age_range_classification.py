@@ -80,13 +80,13 @@ dic_list = ["segment_cfs", "segment_GM", "segment_WM", "segment_GM+CFS",
             "segment_WM+CFS", "segment_WM+GM"]
 filePath = 'reload_data/'
 name_list = os.listdir(filePath)
-file_path = "logfile.txt"
+file_path = "accuracy_log.txt"
 for gap in range(1, 7):
     for item in dic_list:
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
         DATA_DIR = os.path.join(ROOT_DIR, item)
         REFIST_DIR = os.path.join(DATA_DIR, 'IXI-T1')
-        content = str(gap) + "   " + str(item) + "\n"
+        content = "gap is " + str(gap) + "   " + str(item) + "\n"
         with open(file_path, mode='a+', encoding='utf-8') as file_obj:
             file_obj.write(content)
 
@@ -165,7 +165,12 @@ for gap in range(1, 7):
             acc = model.evaluate(x_test, y_test, batch_size=2)
             print('\n\n accuracy is: ', acc[1])
 
-            file_path = "logfile.txt"
-            content = str(start_number) + " accuracy is: " + str(acc[1]) + "\n"
+            file_path = "accuracy_log.txt"
+            content = "start number is " + str(start_number) + " end number is " + str(
+                start_number + gap) + " accuracy is: " + str(acc[1]) + "\n"
             with open(file_path, mode='a+', encoding='utf-8') as file_obj:
                 file_obj.write(content)
+
+        content = "____________________________\n"
+        with open(file_path, mode='a+', encoding='utf-8') as file_obj:
+            file_obj.write(content)
